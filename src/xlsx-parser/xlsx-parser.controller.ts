@@ -3,7 +3,7 @@ import { XlsxParserService } from './xlsx-parser.service';
 
 @Controller('xlsx-parser')
 export class XlsxParserController {
-  constructor(private xlsxParseService: XlsxParserService) {}
+  constructor(private xlsxParseService: XlsxParserService) { }
 
   // routes for creating data
   //
@@ -35,5 +35,10 @@ export class XlsxParserController {
   parseBudgetMonths() {
     console.log('parse_budget_months');
     return this.xlsxParseService.parseBudgetMonths();
+  }
+
+  @Get('parse_budget_past')
+  parseBudgetPast() {
+    return this.xlsxParseService.parseBudgetPast();
   }
 }

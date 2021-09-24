@@ -115,3 +115,11 @@ export type KPI = {
 export type SheetType = {
   [key: string]: string | number;
 };
+
+
+export type PastBudget = {
+  name: string,
+  budget: number,
+  category: string,
+  year: number
+}

@@ -6,11 +6,12 @@ const xlsx_file_dir = rootPath + 'xlsx_files/';
 
 export const fileNames = {
   xlsx_file_dir,
-  main_file: 'testData/test_data.xlsx',    // = Status Report Demo.xlsx
-  kpi_file_1: 'testData/KPI-report_1.xlsx',
+  main_file: 'realData/test_data.xlsx',    // = Status Report Demo.xlsx
+  kpi_file_1: 'realData/KPI-report_1.xlsx',
   kpi_file_2: 'KPI-report_2.xlsx',
-  budget_file: 'testData/budget_report.xlsx',
-  status_report: 'testData/status_report.xlsx', // = overview
+  budget_file: 'realData/budget_report.xlsx',
+  status_report: 'realData/status_report.xlsx', // = overview
+  budget_past: 'realData/budget_past.xlsx',
 };
 
 type FocusAreaNames = {

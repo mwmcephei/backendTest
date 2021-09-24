@@ -7,7 +7,7 @@ import { Budget, BudgetSchema } from '../schemas/budget.schema';
 import { Model } from 'mongoose';
 import { fileNames } from 'src/globalVars';
 import '../types';
-import { Overview } from '../types';
+import { Overview, PastBudget } from '../types';
 
 @Injectable()
 export class ApiService {
@@ -16,6 +16,7 @@ export class ApiService {
     @InjectModel('Measure') private measureModel: Model<Measure>,
     @InjectModel('Sheet') private sheetModel: Model<Sheet>,
     @InjectModel('Budget') private budgetModel: Model<Budget>,
+    @InjectModel('PastBudget') private pastBudgetModel: Model<PastBudget>,
   ) { }
 
   async getMeasure(measureID: string): Promise<Measure> {
@@ -65,6 +66,16 @@ export class ApiService {
     try {
       const budget = await this.budgetModel.findOne();
       return budget;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async getPastBudgets(): Promise<PastBudget[]> {
+    try {
+      const result = await this.pastBudgetModel.find();
+      console.log(result)
+      return result;
     } catch (error) {
       return error;
     }

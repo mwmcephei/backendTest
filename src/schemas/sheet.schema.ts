@@ -20,6 +20,11 @@ export class Sheet {
   progress: number;
 
   @Prop()
+  kpiPlans: string[];
+  @Prop()
+  kpiDates: string[];
+
+  @Prop()
   kpiProgress: number;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Measure' })

@@ -7,6 +7,7 @@ import { Sheet, SheetSchema } from '../schemas/sheet.schema';
 import { Measure, MeasureSchema } from '../schemas/measure.schema';
 import { Artefact, ArtefactSchema } from '../schemas/artefact.schema';
 import { Budget, BudgetSchema } from '../schemas/budget.schema';
+import { PastBudget, PastBudgetSchema } from '../schemas/pastBudget.schema';
 
 @Module({
   imports: [
@@ -15,9 +16,10 @@ import { Budget, BudgetSchema } from '../schemas/budget.schema';
       { name: 'Measure', schema: MeasureSchema },
       { name: 'Artefact', schema: ArtefactSchema },
       { name: 'Budget', schema: BudgetSchema },
+      { name: 'PastBudget', schema: PastBudgetSchema },
     ]),
   ],
   controllers: [ApiController],
   providers: [ApiService],
 })
-export class ApiModule {}
+export class ApiModule { }

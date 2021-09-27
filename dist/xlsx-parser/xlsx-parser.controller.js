@@ -36,6 +36,9 @@ let XlsxParserController = class XlsxParserController {
         console.log('parse_budget_months');
         return this.xlsxParseService.parseBudgetMonths();
     }
+    parseBudgetPast() {
+        return this.xlsxParseService.parseBudgetPast();
+    }
 };
 __decorate([
     common_1.Get('parse'),
@@ -67,6 +70,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], XlsxParserController.prototype, "parseBudgetMonths", null);
+__decorate([
+    common_1.Get('parse_budget_past'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], XlsxParserController.prototype, "parseBudgetPast", null);
 XlsxParserController = __decorate([
     common_1.Controller('xlsx-parser'),
     __metadata("design:paramtypes", [xlsx_parser_service_1.XlsxParserService])

@@ -65,6 +65,8 @@ export declare type Overview = {
     overallStatus: number;
     progress: number;
     totalBudget: number;
+    statusDate: string;
+    budgetDate: string;
 };
 export declare type Budget = {
     _id: string;
@@ -78,6 +80,8 @@ export declare type InitialOverview = {
     overallStatus: number;
     progressOverviewBarResult: number;
     KPIProgressResult: number;
+    statusDate: string;
+    budgetDate: string;
 };
 export declare type ParseOverview = {
     row: number;
@@ -104,4 +108,10 @@ export declare type KPI = {
 };
 export declare type SheetType = {
     [key: string]: string | number;
+};
+export declare type PastBudget = {
+    name: string;
+    budget: number;
+    category: string;
+    year: number;
 };

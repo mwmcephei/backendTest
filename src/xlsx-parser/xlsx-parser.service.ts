@@ -29,7 +29,7 @@ Conduct one-time manual parsing by addressing api endpoints in this order:
 3. .../xlsx-parser/create_overview  
 4. .../xlsx-parser/parse_kpi
 5. .../xlsx-parser/parse_budget_months
-6. .../xlsx-parser/budget_past
+6. .../xlsx-parser/parse_budget_past
 */
 
 @Injectable()
@@ -47,6 +47,9 @@ export class XlsxParserService {
     const workbookKPIFile = XLSX.readFile(
       resolve(fileNames.xlsx_file_dir, fileNames.kpi_file_1),
     );
+    const workbookBudgetFile = XLSX.readFile(
+      resolve(fileNames.xlsx_file_dir, fileNames.budget_file),
+    );
     const workbookStatusReport = XLSX.readFile(
       resolve(fileNames.xlsx_file_dir, fileNames.status_report),
     );
@@ -54,7 +57,11 @@ export class XlsxParserService {
     //   workbookKPIFile.Sheets[workbookKPIFile.SheetNames[0]],
     //  );
     const KPIAsJsonObject = workbookKPIFile.Sheets['Plan view'];
-    const StatusReportAsJsonObject = workbookStatusReport.Sheets[0];
+    const statusReportAsJsonObject = XLSX.utils.sheet_to_json(
+      workbookStatusReport.Sheets[workbookStatusReport.SheetNames[0]],
+    );
+
+    //   console.log(statusReportAsJsonObject)
 
     const baselinDate = KPIAsJsonObject['F4'].v
     const actualsDate = KPIAsJsonObject['G4'].v
@@ -63,8 +70,13 @@ export class XlsxParserService {
     const plan2 = KPIAsJsonObject['K4'].v
     const plan3 = KPIAsJsonObject['L4'].v
 
+    const statusDateKey = Object.keys(statusReportAsJsonObject[3])[0]
+    let statusDate = statusReportAsJsonObject[3][statusDateKey]
+    if (statusDate.substring(0, 5) === "as of") {
+      statusDate = statusDate.substring(6, statusDate.length)
+    }
+    const budgetDate = statusReportAsJsonObject[4]["__EMPTY_14"].split("(")[1].split(")")[0]
     //  const statusArtefactDate = StatusReportAsJsonObject['Y9'].v
-
     /*
     const baselinDate = KPIAsJsonObject[4]["__EMPTY_18"] ? KPIAsJsonObject[4]["__EMPTY_18"] : ""
     const actualsDate = KPIAsJsonObject[4]["__EMPTY_19"] ? KPIAsJsonObject[4]["__EMPTY_19"] : ""
@@ -201,6 +213,8 @@ export class XlsxParserService {
         overallStatus: overallStatus,
         progress: Math.round(progressOverviewBarResult * 100) / 100,
         kpiProgress: Math.round(KPIProgressResult * 100) / 100,
+        statusDate,
+        budgetDate
       });
 
       result = {
@@ -209,6 +223,8 @@ export class XlsxParserService {
         overallStatus,
         progressOverviewBarResult,
         KPIProgressResult,
+        statusDate,
+        budgetDate
       };
 
     }
@@ -396,18 +412,24 @@ export class XlsxParserService {
           let description: string;
           for (let i = 0; i < statusReportAsJsonObject.length; i++) {
             if (statusReportAsJsonObject[i]['__EMPTY_1'] === sheetName) {
+
+              console.log("---------------------------")
+              console.log(statusReportAsJsonObject[i])
+              console.log("---------------------------")
+
+
               const firstKey = Object.keys(statusReportAsJsonObject[i])[0];
               id = statusReportAsJsonObject[i][firstKey];
               description = statusReportAsJsonObject[i]['__EMPTY_4'] ? statusReportAsJsonObject[i]['__EMPTY_4'] : ""
-              measureLead = statusReportAsJsonObject[i]['__EMPTY_8'] ? statusReportAsJsonObject[i]['__EMPTY_8'] : ""
-              measureSponsor = statusReportAsJsonObject[i]['__EMPTY_7'] ? measureSponsor = statusReportAsJsonObject[i]['__EMPTY_7'] : ""
-              lineOrgSponsor = statusReportAsJsonObject[i]['__EMPTY_10'] ? statusReportAsJsonObject[i]['__EMPTY_10'] : ""
-              solutionManager = statusReportAsJsonObject[i]['__EMPTY_11'] ? statusReportAsJsonObject[i]['__EMPTY_11'] : ""
-              approved = 100000 // statusReportAsJsonObject[i]['__EMPTY_12'];
-              spent = statusReportAsJsonObject[i]['__EMPTY_14'].toFixed(2);
-              kpiName = statusReportAsJsonObject[i]['__EMPTY_17'] ? statusReportAsJsonObject[i]['__EMPTY_17'] : ""
-              actuals = 9999//statusReportAsJsonObject[i]['__EMPTY_19'];
-              target = 100000 // statusReportAsJsonObject[i]['__EMPTY_27'];
+              measureLead = statusReportAsJsonObject[i]['__EMPTY_10'] ? statusReportAsJsonObject[i]['__EMPTY_10'] : ""
+              measureSponsor = statusReportAsJsonObject[i]['__EMPTY_9'] ? measureSponsor = statusReportAsJsonObject[i]['__EMPTY_9'] : ""
+              lineOrgSponsor = statusReportAsJsonObject[i]['__EMPTY_12'] ? statusReportAsJsonObject[i]['__EMPTY_12'] : ""
+              solutionManager = statusReportAsJsonObject[i]['__EMPTY_13'] ? statusReportAsJsonObject[i]['__EMPTY_13'] : ""
+              kpiName = statusReportAsJsonObject[i]['__EMPTY_21'] ? statusReportAsJsonObject[i]['__EMPTY_21'] : ""
+              approved = statusReportAsJsonObject[i]['__EMPTY_14'];
+              spent = statusReportAsJsonObject[i]['__EMPTY_18'] ? statusReportAsJsonObject[i]['__EMPTY_18'].toFixed(2) : 0
+              actuals = statusReportAsJsonObject[i]['__EMPTY_23'] ? statusReportAsJsonObject[i]['__EMPTY_23'] : 0
+              target = statusReportAsJsonObject[i]['__EMPTY_24'] ? statusReportAsJsonObject[i]['__EMPTY_24'] : 0
             }
           }
           // get risks

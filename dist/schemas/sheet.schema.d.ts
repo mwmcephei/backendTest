@@ -7,6 +7,10 @@ export declare class Sheet {
     totalBudget: number;
     overallStatus: number;
     progress: number;
+    kpiPlans: string[];
+    kpiDates: string[];
+    statusDate: string;
+    budgetDate: string;
     kpiProgress: number;
     measures: [Measure];
 }

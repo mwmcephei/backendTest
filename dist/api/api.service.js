@@ -19,11 +19,12 @@ const mongoose_2 = require("mongoose");
 const globalVars_1 = require("../globalVars");
 require("../types");
 let ApiService = class ApiService {
-    constructor(artefactModel, measureModel, sheetModel, budgetModel) {
+    constructor(artefactModel, measureModel, sheetModel, budgetModel, pastBudgetModel) {
         this.artefactModel = artefactModel;
         this.measureModel = measureModel;
         this.sheetModel = sheetModel;
         this.budgetModel = budgetModel;
+        this.pastBudgetModel = pastBudgetModel;
     }
     async getMeasure(measureID) {
         try {
@@ -77,6 +78,16 @@ let ApiService = class ApiService {
             return error;
         }
     }
+    async getPastBudgets() {
+        try {
+            const result = await this.pastBudgetModel.find();
+            console.log(result);
+            return result;
+        }
+        catch (error) {
+            return error;
+        }
+    }
 };
 ApiService = __decorate([
     common_1.Injectable(),
@@ -84,7 +95,9 @@ ApiService = __decorate([
     __param(1, mongoose_1.InjectModel('Measure')),
     __param(2, mongoose_1.InjectModel('Sheet')),
     __param(3, mongoose_1.InjectModel('Budget')),
+    __param(4, mongoose_1.InjectModel('PastBudget')),
     __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model])

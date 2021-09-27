@@ -9,54 +9,29 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SheetSchema = exports.Sheet = void 0;
+exports.PastBudgetSchema = exports.PastBudget = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
-const mongoose = require("mongoose");
-let Sheet = class Sheet {
+let PastBudget = class PastBudget {
 };
 __decorate([
     mongoose_1.Prop(),
     __metadata("design:type", String)
-], Sheet.prototype, "name", void 0);
+], PastBudget.prototype, "name", void 0);
 __decorate([
     mongoose_1.Prop(),
     __metadata("design:type", Number)
-], Sheet.prototype, "totalBudget", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", Number)
-], Sheet.prototype, "overallStatus", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", Number)
-], Sheet.prototype, "progress", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", Array)
-], Sheet.prototype, "kpiPlans", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", Array)
-], Sheet.prototype, "kpiDates", void 0);
+], PastBudget.prototype, "budget", void 0);
 __decorate([
     mongoose_1.Prop(),
     __metadata("design:type", String)
-], Sheet.prototype, "statusDate", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", String)
-], Sheet.prototype, "budgetDate", void 0);
+], PastBudget.prototype, "category", void 0);
 __decorate([
     mongoose_1.Prop(),
     __metadata("design:type", Number)
-], Sheet.prototype, "kpiProgress", void 0);
-__decorate([
-    mongoose_1.Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Measure' }),
-    __metadata("design:type", Array)
-], Sheet.prototype, "measures", void 0);
-Sheet = __decorate([
+], PastBudget.prototype, "year", void 0);
+PastBudget = __decorate([
     mongoose_1.Schema()
-], Sheet);
-exports.Sheet = Sheet;
-exports.SheetSchema = mongoose_1.SchemaFactory.createForClass(Sheet);
-//# sourceMappingURL=sheet.schema.js.map
+], PastBudget);
+exports.PastBudget = PastBudget;
+exports.PastBudgetSchema = mongoose_1.SchemaFactory.createForClass(PastBudget);
+//# sourceMappingURL=pastBudget.schema.js.map

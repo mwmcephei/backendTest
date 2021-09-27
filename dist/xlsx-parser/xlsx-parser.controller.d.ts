@@ -7,4 +7,5 @@ export declare class XlsxParserController {
     triggerOverviewCreation(): Promise<import("../types").InitialOverview>;
     parseKPI(): Promise<string>;
     parseBudgetMonths(): Promise<string>;
+    parseBudgetPast(): Promise<import("../types").PastBudget[]>;
 }

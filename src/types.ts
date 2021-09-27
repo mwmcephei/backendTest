@@ -70,6 +70,8 @@ export type Overview = {
   overallStatus: number;
   progress: number;
   totalBudget: number;
+  statusDate: string;
+  budgetDate: string;
 };
 
 export type Budget = {
@@ -85,6 +87,8 @@ export type InitialOverview = {
   overallStatus: number;
   progressOverviewBarResult: number;
   KPIProgressResult: number;
+  statusDate: string;
+  budgetDate: string;
 };
 
 export type ParseOverview = {

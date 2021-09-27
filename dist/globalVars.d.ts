@@ -5,6 +5,7 @@ export declare const fileNames: {
     kpi_file_2: string;
     budget_file: string;
     status_report: string;
+    budget_past: string;
 };
 declare type FocusAreaNames = {
     "Slow down hackers": "SH";

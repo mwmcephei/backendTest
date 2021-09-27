@@ -23,6 +23,10 @@ export class Sheet {
   kpiPlans: string[];
   @Prop()
   kpiDates: string[];
+  @Prop()
+  statusDate: string;
+  @Prop()
+  budgetDate: string;
 
   @Prop()
   kpiProgress: number;

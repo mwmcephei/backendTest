@@ -19,9 +19,6 @@ let ApiController = class ApiController {
     constructor(apiService) {
         this.apiService = apiService;
     }
-    test() {
-        return 'test';
-    }
     getMeasure(params) {
         return this.apiService.getMeasure(params.measureID);
     }
@@ -37,13 +34,10 @@ let ApiController = class ApiController {
     getBudget() {
         return this.apiService.getBudget();
     }
+    getPastBudgets() {
+        return this.apiService.getPastBudgets();
+    }
 };
-__decorate([
-    common_1.Get('test'),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", void 0)
-], ApiController.prototype, "test", null);
 __decorate([
     common_1.Get('measure/:measureID'),
     __param(0, common_1.Param()),
@@ -76,6 +70,12 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ApiController.prototype, "getBudget", null);
+__decorate([
+    common_1.Get('pastBudget'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ApiController.prototype, "getPastBudgets", null);
 ApiController = __decorate([
     common_1.Controller('api'),
     __metadata("design:paramtypes", [api_service_1.ApiService])

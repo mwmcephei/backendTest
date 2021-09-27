@@ -15,6 +15,7 @@ const sheet_schema_1 = require("../schemas/sheet.schema");
 const measure_schema_1 = require("../schemas/measure.schema");
 const artefact_schema_1 = require("../schemas/artefact.schema");
 const budget_schema_1 = require("../schemas/budget.schema");
+const pastBudget_schema_1 = require("../schemas/pastBudget.schema");
 let ApiModule = class ApiModule {
 };
 ApiModule = __decorate([
@@ -25,6 +26,7 @@ ApiModule = __decorate([
                 { name: 'Measure', schema: measure_schema_1.MeasureSchema },
                 { name: 'Artefact', schema: artefact_schema_1.ArtefactSchema },
                 { name: 'Budget', schema: budget_schema_1.BudgetSchema },
+                { name: 'PastBudget', schema: pastBudget_schema_1.PastBudgetSchema },
             ]),
         ],
         controllers: [api_controller_1.ApiController],

@@ -14,6 +14,7 @@ const xlsx_parser_controller_1 = require("./xlsx-parser.controller");
 const sheet_schema_1 = require("../schemas/sheet.schema");
 const measure_schema_1 = require("../schemas/measure.schema");
 const artefact_schema_1 = require("../schemas/artefact.schema");
+const pastBudget_schema_1 = require("../schemas/pastBudget.schema");
 const budget_schema_1 = require("../schemas/budget.schema");
 let XlsxParserModule = class XlsxParserModule {
 };
@@ -25,6 +26,7 @@ XlsxParserModule = __decorate([
                 { name: 'Measure', schema: measure_schema_1.MeasureSchema },
                 { name: 'Artefact', schema: artefact_schema_1.ArtefactSchema },
                 { name: 'Budget', schema: budget_schema_1.BudgetSchema },
+                { name: 'PastBudget', schema: pastBudget_schema_1.PastBudgetSchema },
             ]),
         ],
         providers: [xlsx_parser_controller_1.XlsxParserController, xlsx_parser_service_1.XlsxParserService],

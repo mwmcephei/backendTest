@@ -43,6 +43,8 @@ let ApiService = class ApiService {
             const populatedMeasure = await measure
                 .populate('artefacts')
                 .execPopulate();
+            console.log("ARTEFACTSARTEFACTSARTEFACTSARTEFACTSARTEFACTSARTEFACTSARTEFACTSARTEFACTS");
+            console.log(populatedMeasure.artefacts);
             return populatedMeasure.artefacts;
         }
         catch (error) {

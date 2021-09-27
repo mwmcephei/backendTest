@@ -315,9 +315,6 @@ let XlsxParserService = class XlsxParserService {
                     let description;
                     for (let i = 0; i < statusReportAsJsonObject.length; i++) {
                         if (statusReportAsJsonObject[i]['__EMPTY_1'] === sheetName) {
-                            console.log("---------------------------");
-                            console.log(statusReportAsJsonObject[i]);
-                            console.log("---------------------------");
                             const firstKey = Object.keys(statusReportAsJsonObject[i])[0];
                             id = statusReportAsJsonObject[i][firstKey];
                             description = statusReportAsJsonObject[i]['__EMPTY_4'] ? statusReportAsJsonObject[i]['__EMPTY_4'] : "";
@@ -574,7 +571,7 @@ let XlsxParserService = class XlsxParserService {
             console.log(measure.title + '  ' + actuals + '  ' + target + '  ' + lastPlan);
             let kpiProgressOfThisMeasure;
             if (actuals < lastPlan) {
-                kpiProgressOfThisMeasure = 0;
+                kpiProgressOfThisMeasure = 1;
             }
             else if (lastPlan <= actuals && actuals < target) {
                 kpiProgressOfThisMeasure = 1;

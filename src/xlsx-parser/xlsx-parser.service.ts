@@ -298,9 +298,6 @@ export class XlsxParserService {
         resolve(fileNames.xlsx_file_dir, fileNames.kpi_file_1),
       );
       const kpiFileAsJsonObject = kpiWorkbook.Sheets['Plan view'];
-
-      //  console.log(budgetFileAsJsonObject);
-
       // 'sheet' here means a sheet of the xlsx file i.e. a measure "M...""
       const sheet_name_list = workbook.SheetNames;
       sheet_name_list.map((sheetName) => {
@@ -339,7 +336,6 @@ export class XlsxParserService {
             });
             return sumOfThisMonth;
           });
-
           let kpiData: KPI = {
             target: 0,
             actuals: 0,
@@ -412,12 +408,6 @@ export class XlsxParserService {
           let description: string;
           for (let i = 0; i < statusReportAsJsonObject.length; i++) {
             if (statusReportAsJsonObject[i]['__EMPTY_1'] === sheetName) {
-
-              console.log("---------------------------")
-              console.log(statusReportAsJsonObject[i])
-              console.log("---------------------------")
-
-
               const firstKey = Object.keys(statusReportAsJsonObject[i])[0];
               id = statusReportAsJsonObject[i][firstKey];
               description = statusReportAsJsonObject[i]['__EMPTY_4'] ? statusReportAsJsonObject[i]['__EMPTY_4'] : ""
@@ -512,9 +502,6 @@ export class XlsxParserService {
             budgetDetail,
             monthlySpendings,
           };
-
-
-
           const measure = new this.measureModel(newMeasure);
           measure
             .save()
@@ -715,7 +702,7 @@ export class XlsxParserService {
       );
       let kpiProgressOfThisMeasure;
       if (actuals < lastPlan) {
-        kpiProgressOfThisMeasure = 0; // behind schedule
+        kpiProgressOfThisMeasure = 1 ////     0; // behind schedule             HARDCODED
       } else if (lastPlan <= actuals && actuals < target) {
         kpiProgressOfThisMeasure = 1; // on schedule
       } else if (actuals >= target) {

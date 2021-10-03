@@ -60,7 +60,9 @@ export class XlsxParserService {
     const statusReportAsJsonObject = XLSX.utils.sheet_to_json(
       workbookStatusReport.Sheets[workbookStatusReport.SheetNames[0]],
     );
-
+    const budgetReoportAsJsonObject = XLSX.utils.sheet_to_json(
+      workbookBudgetFile.Sheets[workbookBudgetFile.SheetNames[0]],
+    );
     //   console.log(statusReportAsJsonObject)
 
     const baselinDate = KPIAsJsonObject['F4'].v
@@ -75,7 +77,10 @@ export class XlsxParserService {
     if (statusDate.substring(0, 5) === "as of") {
       statusDate = statusDate.substring(6, statusDate.length)
     }
-    const budgetDate = statusReportAsJsonObject[4]["__EMPTY_14"].split("(")[1].split(")")[0]
+
+    console.log(budgetReoportAsJsonObject)
+    const budgetDate = budgetReoportAsJsonObject[4]["__EMPTY_25"].split("(")[1].split(")")[0]
+    //  const budgetDate = statusReportAsJsonObject[4]["__EMPTY_14"].split("(")[1].split(")")[0]
     //  const statusArtefactDate = StatusReportAsJsonObject['Y9'].v
     /*
     const baselinDate = KPIAsJsonObject[4]["__EMPTY_18"] ? KPIAsJsonObject[4]["__EMPTY_18"] : ""
@@ -802,7 +807,8 @@ export class XlsxParserService {
     while (budgetPastAsJsonObject["B" + rowPosition]) {
       if ((budgetPastAsJsonObject["B" + rowPosition].v + "").substring(0, 1) === "M") {
         const pastBudget: PastBudget = {
-          name: budgetPastAsJsonObject["B" + rowPosition].v,
+          title: budgetPastAsJsonObject["B" + rowPosition].v,
+          name: budgetPastAsJsonObject["C" + rowPosition].v,
           budget: budgetPastAsJsonObject["E" + rowPosition].v,
           category: budgetPastAsJsonObject["F" + rowPosition].v,
           year: currentYear

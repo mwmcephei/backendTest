@@ -6,23 +6,24 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AppModule = void 0;
+exports.SimpleauthModule = void 0;
 const common_1 = require("@nestjs/common");
-const xlsx_parser_module_1 = require("./xlsx-parser/xlsx-parser.module");
+const user_schema_1 = require("../schemas/user.schema");
+const simpleauth_controller_1 = require("./simpleauth.controller");
+const simpleauth_service_1 = require("./simpleauth.service");
 const mongoose_1 = require("@nestjs/mongoose");
-const api_module_1 = require("./api/api.module");
-const simpleauth_module_1 = require("./simpleauth/simpleauth.module");
-let AppModule = class AppModule {
+let SimpleauthModule = class SimpleauthModule {
 };
-AppModule = __decorate([
+SimpleauthModule = __decorate([
     common_1.Module({
         imports: [
-            mongoose_1.MongooseModule.forRoot('mongodb+srv://mwm:mwm@cluster0.drn93.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'),
-            xlsx_parser_module_1.XlsxParserModule,
-            api_module_1.ApiModule,
-            simpleauth_module_1.SimpleauthModule
+            mongoose_1.MongooseModule.forFeature([
+                { name: 'User', schema: user_schema_1.UserSchema },
+            ]),
         ],
+        controllers: [simpleauth_controller_1.SimpleauthController],
+        providers: [simpleauth_service_1.SimpleauthService]
     })
-], AppModule);
-exports.AppModule = AppModule;
-//# sourceMappingURL=app.module.js.map
+], SimpleauthModule);
+exports.SimpleauthModule = SimpleauthModule;
+//# sourceMappingURL=simpleauth.module.js.map

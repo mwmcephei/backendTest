@@ -9,33 +9,21 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PastBudgetSchema = exports.PastBudget = void 0;
+exports.UserSchema = exports.User = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
-let PastBudget = class PastBudget {
+let User = class User {
 };
 __decorate([
     mongoose_1.Prop(),
     __metadata("design:type", String)
-], PastBudget.prototype, "title", void 0);
+], User.prototype, "username", void 0);
 __decorate([
     mongoose_1.Prop(),
     __metadata("design:type", String)
-], PastBudget.prototype, "name", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", Number)
-], PastBudget.prototype, "budget", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", String)
-], PastBudget.prototype, "category", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", Number)
-], PastBudget.prototype, "year", void 0);
-PastBudget = __decorate([
+], User.prototype, "password", void 0);
+User = __decorate([
     mongoose_1.Schema()
-], PastBudget);
-exports.PastBudget = PastBudget;
-exports.PastBudgetSchema = mongoose_1.SchemaFactory.createForClass(PastBudget);
-//# sourceMappingURL=pastBudget.schema.js.map
+], User);
+exports.User = User;
+exports.UserSchema = mongoose_1.SchemaFactory.createForClass(User);
+//# sourceMappingURL=user.schema.js.map

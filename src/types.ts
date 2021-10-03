@@ -122,6 +122,7 @@ export type SheetType = {
 
 
 export type PastBudget = {
+  title: string,
   name: string,
   budget: number,
   category: string,

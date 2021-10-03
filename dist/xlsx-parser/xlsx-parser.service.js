@@ -36,6 +36,7 @@ let XlsxParserService = class XlsxParserService {
         const workbookStatusReport = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.status_report));
         const KPIAsJsonObject = workbookKPIFile.Sheets['Plan view'];
         const statusReportAsJsonObject = XLSX.utils.sheet_to_json(workbookStatusReport.Sheets[workbookStatusReport.SheetNames[0]]);
+        const budgetReoportAsJsonObject = XLSX.utils.sheet_to_json(workbookBudgetFile.Sheets[workbookBudgetFile.SheetNames[0]]);
         const baselinDate = KPIAsJsonObject['F4'].v;
         const actualsDate = KPIAsJsonObject['G4'].v;
         const targetDate = KPIAsJsonObject['H4'].v;
@@ -47,7 +48,8 @@ let XlsxParserService = class XlsxParserService {
         if (statusDate.substring(0, 5) === "as of") {
             statusDate = statusDate.substring(6, statusDate.length);
         }
-        const budgetDate = statusReportAsJsonObject[4]["__EMPTY_14"].split("(")[1].split(")")[0];
+        console.log(budgetReoportAsJsonObject);
+        const budgetDate = budgetReoportAsJsonObject[4]["__EMPTY_25"].split("(")[1].split(")")[0];
         const kpiDates = [
             baselinDate.length > 0 ? baselinDate.substring(baselinDate.length - 10, baselinDate.length) : "",
             actualsDate.length > 0 ? actualsDate.substring(actualsDate.length - 8, actualsDate.length) : "",
@@ -658,7 +660,8 @@ let XlsxParserService = class XlsxParserService {
         while (budgetPastAsJsonObject["B" + rowPosition]) {
             if ((budgetPastAsJsonObject["B" + rowPosition].v + "").substring(0, 1) === "M") {
                 const pastBudget = {
-                    name: budgetPastAsJsonObject["B" + rowPosition].v,
+                    title: budgetPastAsJsonObject["B" + rowPosition].v,
+                    name: budgetPastAsJsonObject["C" + rowPosition].v,
                     budget: budgetPastAsJsonObject["E" + rowPosition].v,
                     category: budgetPastAsJsonObject["F" + rowPosition].v,
                     year: currentYear

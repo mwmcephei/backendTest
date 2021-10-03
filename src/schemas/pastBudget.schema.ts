@@ -7,6 +7,8 @@ export type PastBudgetDocument = PastBudget & Document;
 @Schema()
 export class PastBudget {
   @Prop()
+  title: string;
+  @Prop()
   name: string;
   @Prop()
   budget: number;

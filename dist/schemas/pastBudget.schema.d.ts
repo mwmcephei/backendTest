@@ -1,6 +1,7 @@
 import { Document } from 'mongoose';
 export declare type PastBudgetDocument = PastBudget & Document;
 export declare class PastBudget {
+    title: string;
     name: string;
     budget: number;
     category: string;

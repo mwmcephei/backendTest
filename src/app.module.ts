@@ -2,6 +2,9 @@ import { Module } from '@nestjs/common';
 import { XlsxParserModule } from './xlsx-parser/xlsx-parser.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ApiModule } from './api/api.module';
+import { SimpleauthModule } from './simpleauth/simpleauth.module';
+
+
 
 @Module({
   imports: [
@@ -11,6 +14,7 @@ import { ApiModule } from './api/api.module';
     ),
     XlsxParserModule,
     ApiModule,
+    SimpleauthModule
   ],
 })
 export class AppModule { }

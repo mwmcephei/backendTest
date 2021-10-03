@@ -110,6 +110,7 @@ export declare type SheetType = {
     [key: string]: string | number;
 };
 export declare type PastBudget = {
+    title: string;
     name: string;
     budget: number;
     category: string;

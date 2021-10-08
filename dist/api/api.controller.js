@@ -12,9 +12,17 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ApiController = void 0;
+exports.editFileName = exports.ApiController = exports.SetNotificationDto = exports.UploadDto = void 0;
 const common_1 = require("@nestjs/common");
 const api_service_1 = require("./api.service");
+const platform_express_1 = require("@nestjs/platform-express");
+const multer_1 = require("multer");
+class UploadDto {
+}
+exports.UploadDto = UploadDto;
+class SetNotificationDto {
+}
+exports.SetNotificationDto = SetNotificationDto;
 let ApiController = class ApiController {
     constructor(apiService) {
         this.apiService = apiService;
@@ -36,6 +44,24 @@ let ApiController = class ApiController {
     }
     getPastBudgets() {
         return this.apiService.getPastBudgets();
+    }
+    getNotifications() {
+        return this.apiService.getNotifications();
+    }
+    lookAtNotifications() {
+        return this.apiService.lookAtNotifications();
+    }
+    async setNotification(notification) {
+        console.log("NOTIFICATIONNNNN");
+        console.log(notification);
+        return this.apiService.setNotification(notification);
+    }
+    checkNotifications() {
+        return this.apiService.checkNotifications();
+    }
+    uploadFile(file) {
+        console.log(file);
+        return this.apiService.filesChanged();
     }
 };
 __decorate([
@@ -76,9 +102,52 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], ApiController.prototype, "getPastBudgets", null);
+__decorate([
+    common_1.Get("getNotifications"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ApiController.prototype, "getNotifications", null);
+__decorate([
+    common_1.Get("lookAtNotifications"),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ApiController.prototype, "lookAtNotifications", null);
+__decorate([
+    common_1.Post("setNotification"),
+    __param(0, common_1.Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [SetNotificationDto]),
+    __metadata("design:returntype", Promise)
+], ApiController.prototype, "setNotification", null);
+__decorate([
+    common_1.Get('checkNotifications'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], ApiController.prototype, "checkNotifications", null);
+__decorate([
+    common_1.Post('upload'),
+    common_1.UseInterceptors(platform_express_1.FileInterceptor('file', {
+        storage: multer_1.diskStorage({
+            destination: "./uploads",
+            filename: exports.editFileName
+        })
+    })),
+    __param(0, common_1.UploadedFile()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], ApiController.prototype, "uploadFile", null);
 ApiController = __decorate([
     common_1.Controller('api'),
     __metadata("design:paramtypes", [api_service_1.ApiService])
 ], ApiController);
 exports.ApiController = ApiController;
+const editFileName = (req, file, callback) => {
+    const name = file.originalname;
+    callback(null, `${name}`);
+};
+exports.editFileName = editFileName;
 //# sourceMappingURL=api.controller.js.map

@@ -1,0 +1,1 @@
+{"version":3,"file":"notificationStatus.schema.js","sourceRoot":"","sources":["../../src/schemas/notificationStatus.schema.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,+CAA+D;AAM/D,IAAa,kBAAkB,GAA/B,MAAa,kBAAkB;CAO9B,CAAA;AALC;IADC,eAAI,EAAE;;kDACS;AAFL,kBAAkB;IAD9B,iBAAM,EAAE;GACI,kBAAkB,CAO9B;AAPY,gDAAkB;AASlB,QAAA,wBAAwB,GAAG,wBAAa,CAAC,cAAc,CAAC,kBAAkB,CAAC,CAAC"}

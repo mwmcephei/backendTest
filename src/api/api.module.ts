@@ -8,6 +8,8 @@ import { Measure, MeasureSchema } from '../schemas/measure.schema';
 import { Artefact, ArtefactSchema } from '../schemas/artefact.schema';
 import { Budget, BudgetSchema } from '../schemas/budget.schema';
 import { PastBudget, PastBudgetSchema } from '../schemas/pastBudget.schema';
+import { Notification, NotificationSchema } from '../schemas/notification.schema';
+import { NotificationStatus, NotificationStatusSchema } from '../schemas/notificationStatus.schema';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { PastBudget, PastBudgetSchema } from '../schemas/pastBudget.schema';
       { name: 'Artefact', schema: ArtefactSchema },
       { name: 'Budget', schema: BudgetSchema },
       { name: 'PastBudget', schema: PastBudgetSchema },
+      { name: 'Notification', schema: NotificationSchema },
+      { name: 'NotificationStatus', schema: NotificationStatusSchema },
     ]),
   ],
   controllers: [ApiController],

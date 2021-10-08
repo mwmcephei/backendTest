@@ -19,12 +19,14 @@ const mongoose_2 = require("mongoose");
 const globalVars_1 = require("../globalVars");
 require("../types");
 let ApiService = class ApiService {
-    constructor(artefactModel, measureModel, sheetModel, budgetModel, pastBudgetModel) {
+    constructor(artefactModel, measureModel, sheetModel, budgetModel, pastBudgetModel, notificationModel, notificationStatusModel) {
         this.artefactModel = artefactModel;
         this.measureModel = measureModel;
         this.sheetModel = sheetModel;
         this.budgetModel = budgetModel;
         this.pastBudgetModel = pastBudgetModel;
+        this.notificationModel = notificationModel;
+        this.notificationStatusModel = notificationStatusModel;
     }
     async getMeasure(measureID) {
         try {
@@ -90,6 +92,85 @@ let ApiService = class ApiService {
             return error;
         }
     }
+    async lookAtNotifications() {
+        try {
+            const allNots = await this.notificationModel.find();
+            if (allNots) {
+                allNots.forEach(async (n) => {
+                    await n.update({
+                        seen: true
+                    });
+                });
+            }
+            return allNots;
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    async getNotifications() {
+        try {
+            const result = await this.notificationModel.find();
+            console.log(result);
+            return result;
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    async setNotification(notification) {
+        try {
+            console.log("save new NOTIFICATION");
+            console.log(notification);
+            const newNot = new this.notificationModel(notification);
+            await newNot.save();
+            return newNot;
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    async checkNotifications() {
+        try {
+            const change = await this.notificationStatusModel.findOne({
+                change: true,
+            });
+            if (change) {
+                await change.update({
+                    change: false
+                });
+                return change;
+            }
+            else {
+                const newChange = new this.notificationStatusModel({
+                    change: false
+                });
+                return newChange;
+            }
+        }
+        catch (error) {
+            return error;
+        }
+    }
+    async filesChanged() {
+        try {
+            const existingChange = await this.notificationStatusModel.findOne();
+            if (existingChange) {
+                await existingChange.update({
+                    change: true
+                });
+            }
+            else {
+                const newChange = new this.notificationStatusModel({
+                    change: true
+                });
+                await newChange.save();
+            }
+        }
+        catch (error) {
+            return error;
+        }
+    }
 };
 ApiService = __decorate([
     common_1.Injectable(),
@@ -98,7 +179,11 @@ ApiService = __decorate([
     __param(2, mongoose_1.InjectModel('Sheet')),
     __param(3, mongoose_1.InjectModel('Budget')),
     __param(4, mongoose_1.InjectModel('PastBudget')),
+    __param(5, mongoose_1.InjectModel('Notification')),
+    __param(6, mongoose_1.InjectModel('NotificationStatus')),
     __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
+        mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model,

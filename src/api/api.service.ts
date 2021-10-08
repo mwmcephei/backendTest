@@ -4,6 +4,8 @@ import { Sheet, SheetSchema } from '../schemas/sheet.schema';
 import { Measure, MeasureSchema } from '../schemas/measure.schema';
 import { Artefact, ArtefactSchema } from '../schemas/artefact.schema';
 import { Budget, BudgetSchema } from '../schemas/budget.schema';
+import { Notification, NotificationSchema } from '../schemas/notification.schema';
+import { NotificationStatus, NotificationStatusSchema } from '../schemas/notificationStatus.schema';
 import { Model } from 'mongoose';
 import { fileNames } from 'src/globalVars';
 import '../types';
@@ -17,6 +19,8 @@ export class ApiService {
     @InjectModel('Sheet') private sheetModel: Model<Sheet>,
     @InjectModel('Budget') private budgetModel: Model<Budget>,
     @InjectModel('PastBudget') private pastBudgetModel: Model<PastBudget>,
+    @InjectModel('Notification') private notificationModel: Model<Notification>,
+    @InjectModel('NotificationStatus') private notificationStatusModel: Model<NotificationStatus>,
   ) { }
 
   async getMeasure(measureID: string): Promise<Measure> {
@@ -82,4 +86,91 @@ export class ApiService {
       return error;
     }
   }
+
+
+
+
+  async lookAtNotifications(): Promise<Notification[]> {
+    try {
+      const allNots = await this.notificationModel.find();
+      if (allNots) {
+        allNots.forEach(async n => {
+          await n.update({
+            seen: true
+          })
+        })
+      }
+      return allNots;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async getNotifications(): Promise<Notification[]> {
+    try {
+      const result = await this.notificationModel.find();
+      console.log(result)
+      return result;
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async setNotification(notification): Promise<Notification> {
+    try {
+      console.log("save new NOTIFICATION")
+      console.log(notification)
+      const newNot = new this.notificationModel(notification);
+      await newNot.save()
+      return newNot
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async checkNotifications(): Promise<NotificationStatus> {
+    try {
+      const change = await this.notificationStatusModel.findOne({
+        change: true,
+      });
+      if (change) {
+        await change.update({
+          change: false
+        })
+        return change
+      } else {
+        const newChange = new this.notificationStatusModel({
+          change: false
+        });
+        return newChange
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
+  async filesChanged(): Promise<NotificationStatus[]> {
+    try {
+      const existingChange = await this.notificationStatusModel.findOne();
+      if (existingChange) {
+        await existingChange.update({
+          change: true
+        });
+      } else {
+        const newChange = new this.notificationStatusModel({
+          change: true
+        });
+        await newChange.save()
+      }
+    } catch (error) {
+      return error;
+    }
+  }
+
+
 }
+
+
+
+
+

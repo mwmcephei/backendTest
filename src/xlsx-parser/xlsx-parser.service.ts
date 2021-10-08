@@ -77,9 +77,11 @@ export class XlsxParserService {
     if (statusDate.substring(0, 5) === "as of") {
       statusDate = statusDate.substring(6, statusDate.length)
     }
-
-    console.log(budgetReoportAsJsonObject)
-    const budgetDate = budgetReoportAsJsonObject[4]["__EMPTY_25"].split("(")[1].split(")")[0]
+    console.log(budgetReoportAsJsonObject[0])
+    console.log(budgetReoportAsJsonObject[1])
+    console.log(budgetReoportAsJsonObject[2])
+    console.log(budgetReoportAsJsonObject[3])
+    const budgetDate = budgetReoportAsJsonObject[1]["__EMPTY_25"].split("(")[1].split(")")[0]
     //  const budgetDate = statusReportAsJsonObject[4]["__EMPTY_14"].split("(")[1].split(")")[0]
     //  const statusArtefactDate = StatusReportAsJsonObject['Y9'].v
     /*

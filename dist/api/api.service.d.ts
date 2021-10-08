@@ -2,6 +2,8 @@ import { Sheet } from '../schemas/sheet.schema';
 import { Measure } from '../schemas/measure.schema';
 import { Artefact } from '../schemas/artefact.schema';
 import { Budget } from '../schemas/budget.schema';
+import { Notification } from '../schemas/notification.schema';
+import { NotificationStatus } from '../schemas/notificationStatus.schema';
 import { Model } from 'mongoose';
 import '../types';
 import { PastBudget } from '../types';
@@ -11,11 +13,18 @@ export declare class ApiService {
     private sheetModel;
     private budgetModel;
     private pastBudgetModel;
-    constructor(artefactModel: Model<Artefact>, measureModel: Model<Measure>, sheetModel: Model<Sheet>, budgetModel: Model<Budget>, pastBudgetModel: Model<PastBudget>);
+    private notificationModel;
+    private notificationStatusModel;
+    constructor(artefactModel: Model<Artefact>, measureModel: Model<Measure>, sheetModel: Model<Sheet>, budgetModel: Model<Budget>, pastBudgetModel: Model<PastBudget>, notificationModel: Model<Notification>, notificationStatusModel: Model<NotificationStatus>);
     getMeasure(measureID: string): Promise<Measure>;
     getArtefactsOfMeasure(measureID: string): Promise<Artefact[]>;
     getAllMeasures(): Promise<Measure[]>;
     getOverview(): Promise<Sheet>;
     getBudget(): Promise<Budget>;
     getPastBudgets(): Promise<PastBudget[]>;
+    lookAtNotifications(): Promise<Notification[]>;
+    getNotifications(): Promise<Notification[]>;
+    setNotification(notification: any): Promise<Notification>;
+    checkNotifications(): Promise<NotificationStatus>;
+    filesChanged(): Promise<NotificationStatus[]>;
 }

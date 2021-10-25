@@ -1,8 +1,10 @@
 const distPath = __dirname; // ...pmo/pmo-backend/dist
 const rootPath_array = distPath.split('/');
 rootPath_array.pop();
-const rootPath = rootPath_array.join('/') + '/src/';
-const xlsx_file_dir = rootPath + 'xlsx_files/';
+export const rootPath = rootPath_array.join('/');
+const rootPathSrc = rootPath_array.join('/') + '/src/';
+const xlsx_file_dir = rootPath + '/src/';
+
 
 export const fileNames = {
   xlsx_file_dir,

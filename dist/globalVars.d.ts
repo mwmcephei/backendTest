@@ -1,3 +1,4 @@
+export declare const rootPath: string;
 export declare const fileNames: {
     xlsx_file_dir: string;
     main_file: string;

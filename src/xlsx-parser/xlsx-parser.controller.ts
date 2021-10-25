@@ -7,38 +7,65 @@ export class XlsxParserController {
 
   // routes for creating data
   //
-  @Get('parse')
-  parse() {
+  @Get('parse/:temp')
+  parse(@Param() params) {
     console.log('parse');
-    return this.xlsxParseService.parse();
+    const tempAsBool = (params.temp === 'true')
+    return this.xlsxParseService.parse(tempAsBool);
   }
 
-  @Get('parse_overview')
-  parse_overview() {
+  @Get('parse_overview/:temp')
+  parse_overview(@Param() params) {
     console.log('parse_overview');
-    return this.xlsxParseService.parse_overview();
+    const tempAsBool = (params.temp === 'true')
+    return this.xlsxParseService.parse_overview(tempAsBool);
   }
 
-  @Get('create_overview')
-  triggerOverviewCreation() {
+  @Get('create_overview/:temp')
+  triggerOverviewCreation(@Param() params) {
     console.log('createOverview');
-    return this.xlsxParseService.createOverview();
+    const tempAsBool = (params.temp === 'true')
+    return this.xlsxParseService.createOverview(tempAsBool);
   }
 
-  @Get('parse_kpi')
-  parseKPI() {
+  @Get('parse_kpi/:temp')
+  parseKPI(@Param() params) {
     console.log('parse_kpi');
-    return this.xlsxParseService.parseKPI();
+    const tempAsBool = (params.temp === 'true')
+    return this.xlsxParseService.parseKPI(tempAsBool);
   }
 
-  @Get('parse_budget_months')
-  parseBudgetMonths() {
+  @Get('parse_budget_months/:temp')
+  parseBudgetMonths(@Param() params) {
     console.log('parse_budget_months');
-    return this.xlsxParseService.parseBudgetMonths();
+    const tempAsBool = (params.temp === 'true')
+    return this.xlsxParseService.parseBudgetMonths(tempAsBool);
   }
 
   @Get('parse_budget_past')
   parseBudgetPast() {
     return this.xlsxParseService.parseBudgetPast();
   }
+
+
+
+  @Get('triggerParsing')
+  async triggerParsing() {
+    return await this.xlsxParseService.triggerParsing();
+  }
+
+  @Get('parseManually/:temp')
+  parseManually(@Param() params) {
+    const tempAsBool = (params.temp === 'true')
+    return this.xlsxParseService.parseAll(tempAsBool);
+  }
+
+  @Get('deleteData/:temp')
+  async deleteData(@Param() params) {
+    const tempAsBool = (params.temp === 'true')
+    return await this.xlsxParseService.deleteData(tempAsBool);
+  }
+
+
+
 }

@@ -12,11 +12,14 @@ const xlsx_parser_module_1 = require("./xlsx-parser/xlsx-parser.module");
 const mongoose_1 = require("@nestjs/mongoose");
 const api_module_1 = require("./api/api.module");
 const simpleauth_module_1 = require("./simpleauth/simpleauth.module");
+const platform_express_1 = require("@nestjs/platform-express");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     common_1.Module({
-        imports: [
+        imports: [platform_express_1.MulterModule.register({
+                dest: './uploads',
+            }),
             mongoose_1.MongooseModule.forRoot('mongodb+srv://mwm:mwm@cluster0.drn93.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'),
             xlsx_parser_module_1.XlsxParserModule,
             api_module_1.ApiModule,

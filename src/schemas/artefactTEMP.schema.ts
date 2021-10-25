@@ -1,6 +1,7 @@
 import * as mongoose from 'mongoose';
 
-export const ArtefactSchema = new mongoose.Schema({
+
+export const ArtefactTEMPSchema = new mongoose.Schema({
   id: { type: Number },
   description: { type: String },
   progress: { type: Number },
@@ -9,7 +10,7 @@ export const ArtefactSchema = new mongoose.Schema({
   work: { type: String },
 });
 
-export interface Artefact {
+export interface ArtefactTEMP {
   id: number;
   description: string;
   progress: number;
@@ -17,4 +18,3 @@ export interface Artefact {
   achievement: string;
   work: string;
 }
-

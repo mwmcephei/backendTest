@@ -18,6 +18,7 @@ const budget_schema_1 = require("../schemas/budget.schema");
 const pastBudget_schema_1 = require("../schemas/pastBudget.schema");
 const notification_schema_1 = require("../schemas/notification.schema");
 const notificationStatus_schema_1 = require("../schemas/notificationStatus.schema");
+const upload_schema_1 = require("../schemas/upload.schema");
 let ApiModule = class ApiModule {
 };
 ApiModule = __decorate([
@@ -31,6 +32,7 @@ ApiModule = __decorate([
                 { name: 'PastBudget', schema: pastBudget_schema_1.PastBudgetSchema },
                 { name: 'Notification', schema: notification_schema_1.NotificationSchema },
                 { name: 'NotificationStatus', schema: notificationStatus_schema_1.NotificationStatusSchema },
+                { name: 'Upload', schema: upload_schema_1.UploadSchema },
             ]),
         ],
         controllers: [api_controller_1.ApiController],

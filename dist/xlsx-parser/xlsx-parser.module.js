@@ -12,10 +12,17 @@ const mongoose_1 = require("@nestjs/mongoose");
 const xlsx_parser_service_1 = require("./xlsx-parser.service");
 const xlsx_parser_controller_1 = require("./xlsx-parser.controller");
 const sheet_schema_1 = require("../schemas/sheet.schema");
+const sheetTEMP_schema_1 = require("../schemas/sheetTEMP.schema");
 const measure_schema_1 = require("../schemas/measure.schema");
+const measureTEMP_schema_1 = require("../schemas/measureTEMP.schema");
 const artefact_schema_1 = require("../schemas/artefact.schema");
+const artefactTEMP_schema_1 = require("../schemas/artefactTEMP.schema");
 const pastBudget_schema_1 = require("../schemas/pastBudget.schema");
 const budget_schema_1 = require("../schemas/budget.schema");
+const budgetTEMP_schema_1 = require("../schemas/budgetTEMP.schema");
+const notification_schema_1 = require("../schemas/notification.schema");
+const notificationStatus_schema_1 = require("../schemas/notificationStatus.schema");
+const upload_schema_1 = require("../schemas/upload.schema");
 let XlsxParserModule = class XlsxParserModule {
 };
 XlsxParserModule = __decorate([
@@ -23,10 +30,17 @@ XlsxParserModule = __decorate([
         imports: [
             mongoose_1.MongooseModule.forFeature([
                 { name: 'Sheet', schema: sheet_schema_1.SheetSchema },
+                { name: 'SheetTEMP', schema: sheetTEMP_schema_1.SheetTEMPSchema },
                 { name: 'Measure', schema: measure_schema_1.MeasureSchema },
+                { name: 'MeasureTEMP', schema: measureTEMP_schema_1.MeasureTEMPSchema },
                 { name: 'Artefact', schema: artefact_schema_1.ArtefactSchema },
+                { name: 'ArtefactTEMP', schema: artefactTEMP_schema_1.ArtefactTEMPSchema },
                 { name: 'Budget', schema: budget_schema_1.BudgetSchema },
+                { name: 'BudgetTEMP', schema: budgetTEMP_schema_1.BudgetTEMPSchema },
                 { name: 'PastBudget', schema: pastBudget_schema_1.PastBudgetSchema },
+                { name: 'Notification', schema: notification_schema_1.NotificationSchema },
+                { name: 'NotificationStatus', schema: notificationStatus_schema_1.NotificationStatusSchema },
+                { name: 'Upload', schema: upload_schema_1.UploadSchema },
             ]),
         ],
         providers: [xlsx_parser_controller_1.XlsxParserController, xlsx_parser_service_1.XlsxParserService],

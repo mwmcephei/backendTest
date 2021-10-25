@@ -22,18 +22,287 @@ const globalVars_1 = require("../globalVars");
 require("../types");
 require("../types");
 const types_1 = require("../types");
+const upload_schema_1 = require("../schemas/upload.schema");
+const fs = require('fs');
 let XlsxParserService = class XlsxParserService {
-    constructor(artefactModel, measureModel, sheetModel, budgetModel, pastBudgetModel) {
+    constructor(artefactModel, artefactTEMPModel, measureModel, measureTEMPModel, sheetModel, sheetTEMPModel, budgetModel, budgetTEMPModel, pastBudgetModel, notificationModel, notificationStatusModel, uploadModel) {
         this.artefactModel = artefactModel;
+        this.artefactTEMPModel = artefactTEMPModel;
         this.measureModel = measureModel;
+        this.measureTEMPModel = measureTEMPModel;
         this.sheetModel = sheetModel;
+        this.sheetTEMPModel = sheetTEMPModel;
         this.budgetModel = budgetModel;
+        this.budgetTEMPModel = budgetTEMPModel;
         this.pastBudgetModel = pastBudgetModel;
+        this.notificationModel = notificationModel;
+        this.notificationStatusModel = notificationStatusModel;
+        this.uploadModel = uploadModel;
     }
-    async createOverview() {
-        const workbookKPIFile = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.kpi_file_1));
-        const workbookBudgetFile = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.budget_file));
-        const workbookStatusReport = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.status_report));
+    async triggerParsing() {
+        await this.uploadModel.deleteMany({});
+        let statusReportExists = false;
+        let budgetReportExists = false;
+        let kpiReportExists = false;
+        let datatExists = false;
+        let pastBudgetsExists = false;
+        try {
+            if (fs.existsSync(globalVars_1.rootPath + "/data/" + "status_report.xlsx")) {
+                statusReportExists = true;
+            }
+            else {
+                await fs.copyFile(globalVars_1.rootPath + "/src/realData/" + "status_report.xlsx", globalVars_1.rootPath + "/data/" + "status_report.xlsx", (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    else {
+                        console.log('source.txt was copied to destination.txt');
+                        statusReportExists = true;
+                    }
+                });
+            }
+            if (fs.existsSync(globalVars_1.rootPath + "/data/" + "budget_report.xlsx")) {
+                budgetReportExists = true;
+            }
+            else {
+                await fs.copyFile(globalVars_1.rootPath + "/src/realData/" + "budget_report.xlsx", globalVars_1.rootPath + "/data/" + "budget_report.xlsx", (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    else {
+                        console.log('source.txt was copied to destination.txt');
+                        budgetReportExists = true;
+                    }
+                });
+            }
+            if (fs.existsSync(globalVars_1.rootPath + "/data/" + "KPI-report_1.xlsx")) {
+                kpiReportExists = true;
+            }
+            else {
+                await fs.copyFile(globalVars_1.rootPath + "/src/realData/" + "KPI-report_1.xlsx", globalVars_1.rootPath + "/data/" + "KPI-report_1.xlsx", (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    else {
+                        console.log('source.txt was copied to destination.txt');
+                        kpiReportExists = true;
+                    }
+                });
+            }
+            if (fs.existsSync(globalVars_1.rootPath + "/data/" + "test_data.xlsx")) {
+                datatExists = true;
+            }
+            else {
+                await fs.copyFile(globalVars_1.rootPath + "/src/realData/" + "test_data.xlsx", globalVars_1.rootPath + "/data/" + "test_data.xlsx", (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    else {
+                        console.log('source.txt was copied to destination.txt');
+                        datatExists = true;
+                    }
+                });
+            }
+            if (fs.existsSync(globalVars_1.rootPath + "/data/" + "budget_past.xlsx")) {
+                pastBudgetsExists = true;
+            }
+            else {
+                await fs.copyFile(globalVars_1.rootPath + "/src/realData/" + "budget_past.xlsx", globalVars_1.rootPath + "/data/" + "budget_past.xlsx", (err) => {
+                    if (err) {
+                        throw err;
+                    }
+                    else {
+                        console.log('source.txt was copied to destination.txt');
+                        pastBudgetsExists = true;
+                    }
+                });
+            }
+        }
+        catch (err) {
+            console.error(err);
+        }
+        const parsedNewData = await this.parseAll(true);
+        if (parsedNewData) {
+            const measuresOLD = await this.measureModel.find();
+            const measuresNew = await this.measureTEMPModel.find();
+            if (measuresOLD.length > 0) {
+                await this.checkForChanges(measuresOLD, measuresNew);
+                await this.moveFilesAfterParsing();
+                const deletedNew = await this.deleteData(true);
+                const deletedOld = await this.deleteData(false);
+                if (deletedNew && deletedOld) {
+                    const parsedNewDataAsOld = await this.parseAll(false);
+                    if (parsedNewDataAsOld) {
+                        console.log("done");
+                    }
+                }
+            }
+            else {
+                await this.moveFilesAfterParsing();
+                const deletedNew = await this.deleteData(true);
+                if (deletedNew) {
+                    const parsedNewDataAsOld = await this.parseAll(true);
+                    if (parsedNewDataAsOld) {
+                        console.log("done");
+                    }
+                }
+            }
+            return JSON.stringify("ok");
+        }
+    }
+    async parseAll(temp) {
+        const parseResult = await this.parse(temp);
+        if (parseResult) {
+            console.log("##################" + parseResult);
+            const parseOverviewResult = await this.parse_overview(temp);
+            if (parseOverviewResult) {
+                console.log("##################" + parseOverviewResult);
+                const createOverviewResult = await this.createOverview(temp);
+                if (createOverviewResult) {
+                    console.log("##################" + createOverviewResult);
+                    const kpiResult = await this.parseKPI(temp);
+                    if (kpiResult) {
+                        console.log("##################" + kpiResult);
+                        await this.parseBudgetMonths(temp);
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    async deleteData(temp) {
+        return new Promise((resolve, reject) => {
+            setTimeout(async () => {
+                if (false)
+                    reject(new Error('no first name passed in!'));
+                if (temp) {
+                    await this.measureTEMPModel.deleteMany({});
+                    await this.artefactTEMPModel.deleteMany({});
+                    await this.budgetTEMPModel.deleteMany({});
+                    await this.sheetTEMPModel.deleteMany({});
+                    resolve(true);
+                }
+                else {
+                    await this.measureModel.deleteMany({});
+                    await this.artefactModel.deleteMany({});
+                    await this.budgetModel.deleteMany({});
+                    await this.sheetModel.deleteMany({});
+                    resolve(true);
+                }
+            }, 2000);
+        });
+    }
+    checkForChanges(measuresOLD, measuresNew) {
+        const oldMeasureNames = new Set(measuresOLD.map(m => m.title));
+        const newMeasureNames = new Set(measuresNew.map(m => m.title));
+        if (this.eqSet(oldMeasureNames, newMeasureNames)) {
+            const mapMeasuresOLD = measuresOLD.reduce(function (map, obj) {
+                map[obj.title] = obj;
+                return map;
+            }, {});
+            const mapMeasuresNEW = measuresNew.reduce(function (map, obj) {
+                map[obj.title] = obj;
+                return map;
+            }, {});
+            const overallStatuses = {
+                0: "Green",
+                1: "Yellow",
+                2: "Red"
+            };
+            const kpiStates = {
+                0: "Behind",
+                1: "On Track",
+                2: "Achieved"
+            };
+            Array.from(oldMeasureNames).forEach(async (mOldName) => {
+                const oldMeasure = mapMeasuresOLD[mOldName + ""];
+                const newMeasure = mapMeasuresNEW[mOldName + ""];
+                if (oldMeasure.kpiProgress === 1 && newMeasure.kpiProgress === 0) {
+                    const newNot = new this.notificationModel({
+                        title: mOldName + ": KPI Progress changed",
+                        body: "From " + kpiStates[oldMeasure.kpiProgress] + " to " + kpiStates[newMeasure.kpiProgress],
+                        time: this.datetimNow(),
+                        type: "progress",
+                        measure: newMeasure.title,
+                        seen: false,
+                        notified: false
+                    });
+                    await newNot.save();
+                }
+                const oldStatus = Math.max(oldMeasure.budget, oldMeasure.artefact, oldMeasure.risk);
+                const newStatus = Math.max(newMeasure.budget, newMeasure.artefact, newMeasure.risk);
+                if ((oldStatus === 0 && newStatus === 1) || (oldStatus === 1 && newStatus === 2)) {
+                    const notification = {
+                        title: mOldName + ": Measure Status changed",
+                        body: "From " + overallStatuses[oldStatus] + " to " + overallStatuses[newStatus],
+                        time: this.datetimNow(),
+                        type: "status",
+                        measure: newMeasure.title,
+                        seen: false,
+                        notified: false
+                    };
+                    console.log(notification);
+                    const newNot = new this.notificationModel(notification);
+                    await newNot.save();
+                }
+                if (oldMeasure.help === "No" && newMeasure.help === "Yes") {
+                    const notification = {
+                        title: mOldName + ": Help required!",
+                        body: "",
+                        time: this.datetimNow(),
+                        type: "help",
+                        measure: newMeasure.title,
+                        seen: false,
+                        notified: false
+                    };
+                    console.log(notification);
+                    const newNot = new this.notificationModel(notification);
+                    await newNot.save();
+                }
+            });
+        }
+        else {
+            console.log("not same measures");
+        }
+    }
+    datetimNow() {
+        const currentdate = new Date();
+        return currentdate.getDate() + "."
+            + (currentdate.getMonth() + 1) + "."
+            + currentdate.getFullYear() + " "
+            + currentdate.getHours() + ":"
+            + currentdate.getMinutes();
+    }
+    eqSet(as, bs) {
+        if (as.size !== bs.size)
+            return false;
+        for (var a of as)
+            if (!bs.has(a))
+                return false;
+        return true;
+    }
+    async moveFilesAfterParsing() {
+        fs.readdir(globalVars_1.rootPath + '/data/', (err, files) => {
+            files.forEach(file => {
+                fs.rename(globalVars_1.rootPath + '/data/' + file, globalVars_1.rootPath + '/src/realData/' + file, function (err) {
+                    if (err) {
+                        throw err;
+                    }
+                    else {
+                        console.log("Successfully moved the file!");
+                    }
+                });
+            });
+        });
+    }
+    async createOverview(temp) {
+        const main_file = temp ? globalVars_1.rootPath + "/data/" + "test_data.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.main_file);
+        const status_report = temp ? globalVars_1.rootPath + "/data/" + "status_report.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.status_report);
+        const budget_file = temp ? globalVars_1.rootPath + "/data/" + "budget_report.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.budget_file);
+        const kpi_file_1 = temp ? globalVars_1.rootPath + "/data/" + "KPI-report_1.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.kpi_file_1);
+        const workbookKPIFile = XLSX.readFile(kpi_file_1);
+        const workbookBudgetFile = XLSX.readFile(budget_file);
+        const workbookStatusReport = XLSX.readFile(status_report);
         const KPIAsJsonObject = workbookKPIFile.Sheets['Plan view'];
         const statusReportAsJsonObject = XLSX.utils.sheet_to_json(workbookStatusReport.Sheets[workbookStatusReport.SheetNames[0]]);
         const budgetReoportAsJsonObject = XLSX.utils.sheet_to_json(workbookBudgetFile.Sheets[workbookBudgetFile.SheetNames[0]]);
@@ -48,10 +317,6 @@ let XlsxParserService = class XlsxParserService {
         if (statusDate.substring(0, 5) === "as of") {
             statusDate = statusDate.substring(6, statusDate.length);
         }
-        console.log(budgetReoportAsJsonObject[0]);
-        console.log(budgetReoportAsJsonObject[1]);
-        console.log(budgetReoportAsJsonObject[2]);
-        console.log(budgetReoportAsJsonObject[3]);
         const budgetDate = budgetReoportAsJsonObject[1]["__EMPTY_25"].split("(")[1].split(")")[0];
         const kpiDates = [
             baselinDate.length > 0 ? baselinDate.substring(baselinDate.length - 10, baselinDate.length) : "",
@@ -64,13 +329,18 @@ let XlsxParserService = class XlsxParserService {
             plan3.length > 0 ? plan3.substring(plan3.length - 7, plan3.length) : "",
         ];
         let result;
-        const excelSheet = await this.sheetModel.findOne({
-            name: globalVars_1.fileNames.main_file,
-        });
+        const excelSheet = temp ? await this.sheetTEMPModel.findOne()
+            : await this.sheetModel.findOne();
+        console.log("SO FAR...4.5");
+        console.log(excelSheet);
+        console.log(typeof (excelSheet));
         if (excelSheet) {
             const numberOfMeasures = excelSheet.measures.length;
-            const workbook = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.main_file));
+            console.log(numberOfMeasures);
+            const workbook = XLSX.readFile(main_file);
+            console.log(workbook.SheetNames);
             const overview_object = workbook.Sheets['Status Overview'];
+            console.log("SO FAR...5");
             let totalBudget = 0;
             const allBudgetsOfMeasures = [];
             Object.keys(overview_object).filter((key) => {
@@ -88,6 +358,7 @@ let XlsxParserService = class XlsxParserService {
                     }
                 }
             });
+            console.log("SO FAR...6");
             const allRisksBudgetsAndArtefacts = [];
             Object.keys(overview_object).filter((key) => {
                 if (key.includes('P')) {
@@ -119,38 +390,47 @@ let XlsxParserService = class XlsxParserService {
                     overallStatus = a;
                 }
             });
+            console.log("SO FAR...7");
             let sumAvgProgressTimesBudgetOfMEasures = 0;
             for (let m = 0; m < excelSheet.measures.length; m++) {
-                const measure = await (await this.measureModel.findById(excelSheet.measures[m]))
-                    .populate('artefacts')
-                    .execPopulate();
+                const measure = temp
+                    ?
+                        await (await this.measureTEMPModel.findById(excelSheet.measures[m]))
+                            .populate('artefacts')
+                            .execPopulate()
+                    :
+                        await (await this.measureModel.findById(excelSheet.measures[m]))
+                            .populate('artefacts')
+                            .execPopulate();
+                console.log("SO FAR...8");
                 let avgProgressOfArtefacts = 0;
                 measure.artefacts.map((art) => {
                     avgProgressOfArtefacts += art.progress;
                 });
                 avgProgressOfArtefacts =
                     avgProgressOfArtefacts / measure.artefacts.length;
-                let temp = 0;
+                let tempx = 0;
                 allBudgetsOfMeasures.map((item) => {
                     if (item[measure.title]) {
                         if (isNaN(avgProgressOfArtefacts)) {
-                            temp = item[measure.title];
+                            tempx = item[measure.title];
                         }
                         else {
-                            temp = item[measure.title] * avgProgressOfArtefacts;
+                            tempx = item[measure.title] * avgProgressOfArtefacts;
                         }
                     }
                 });
-                sumAvgProgressTimesBudgetOfMEasures += temp;
+                sumAvgProgressTimesBudgetOfMEasures += tempx;
             }
+            console.log("SO FAR...9");
             const progressOverviewBarResult = sumAvgProgressTimesBudgetOfMEasures / totalBudget;
-            const KPIprogressOfAllMeasures = this.getKPIProgressData('kpi_progress.xlsx');
+            const KPIprogressOfAllMeasures = this.getKPIProgressData(kpi_file_1);
             let sum = 0;
             KPIprogressOfAllMeasures.map((item) => {
                 allBudgetsOfMeasures.map((budgetOfMeasure) => {
                     if (budgetOfMeasure[Object.keys(budgetOfMeasure)[0]]) {
-                        const temp = item.progress * budgetOfMeasure[Object.keys(budgetOfMeasure)[0]];
-                        sum += temp;
+                        const tempx = item.progress * budgetOfMeasure[Object.keys(budgetOfMeasure)[0]];
+                        sum += tempx;
                     }
                 });
             });
@@ -178,7 +458,7 @@ let XlsxParserService = class XlsxParserService {
         return result;
     }
     getKPIProgressData(kpiFile) {
-        const workbook = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, kpiFile));
+        const workbook = XLSX.readFile(kpiFile);
         const overview_object = workbook.Sheets['Plan view'];
         const numberOfRows = 22;
         const result = [];
@@ -195,7 +475,8 @@ let XlsxParserService = class XlsxParserService {
         }
         return result;
     }
-    parse() {
+    async parse(temp) {
+        let result = "parse failed";
         const focusAreaNames = {
             'Slow Down Hackers': 'SH',
             'Increase Detection': 'ID',
@@ -203,25 +484,28 @@ let XlsxParserService = class XlsxParserService {
             'Streamline Compliance': 'SC',
             'Build Security Organization / Skills': 'BS',
         };
-        const newSheet = {
-            name: globalVars_1.fileNames.main_file,
-        };
-        const excelFile = new this.sheetModel(newSheet);
-        excelFile.save().then((newlySavedExcelSheet) => {
-            const workbook = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.main_file));
-            const workbookStatusReportFile = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.status_report));
-            const workbookBudgetFile = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.budget_file));
+        const main_file = temp ? globalVars_1.rootPath + "/data/" + "test_data.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.main_file);
+        const status_report = temp ? globalVars_1.rootPath + "/data/" + "status_report.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.status_report);
+        const budget_file = temp ? globalVars_1.rootPath + "/data/" + "budget_report.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.budget_file);
+        const kpi_file_1 = temp ? globalVars_1.rootPath + "/data/" + "KPI-report_1.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.kpi_file_1);
+        const newSheet = {};
+        const excelFile = temp ? new this.sheetTEMPModel(newSheet) : new this.sheetModel(newSheet);
+        const newlySavedExcelSheet = await excelFile.save();
+        if (newlySavedExcelSheet) {
+            const workbook = XLSX.readFile(main_file, { cellDates: true });
+            const workbookStatusReportFile = XLSX.readFile(status_report);
+            const workbookBudgetFile = XLSX.readFile(budget_file);
+            const kpiWorkbook = XLSX.readFile(kpi_file_1);
             const statusReportAsJsonObject = XLSX.utils.sheet_to_json(workbookStatusReportFile.Sheets[workbookStatusReportFile.SheetNames[0]]);
             const budgetFileAsJsonObject = XLSX.utils.sheet_to_json(workbookBudgetFile.Sheets['1. Overview']);
             const budgetDetailsFileAsJsonObject = workbookBudgetFile.Sheets['2. Detailed view'];
-            const kpiWorkbook = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.kpi_file_1));
             const kpiFileAsJsonObject = kpiWorkbook.Sheets['Plan view'];
             const sheet_name_list = workbook.SheetNames;
-            sheet_name_list.map((sheetName) => {
-                var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k, _l, _m, _o, _p, _q;
+            for (let i = 0; i < sheet_name_list.length; i++) {
+                const sheetName = sheet_name_list[i];
                 if (sheetName !== 'Status Overview' && sheetName !== 'Overview') {
                     const month_columns = [];
-                    Object.keys(budgetDetailsFileAsJsonObject).map((key) => {
+                    Object.keys(budgetDetailsFileAsJsonObject).forEach((key) => {
                         const tmp = key.replace(/^[A-Z]/, '_');
                         const split = tmp.split('_');
                         const target = split[split.length - 1];
@@ -234,7 +518,7 @@ let XlsxParserService = class XlsxParserService {
                     });
                     const monthlySpendings = month_columns.map((month) => {
                         let sumOfThisMonth = 0;
-                        Object.keys(budgetDetailsFileAsJsonObject).map((key) => {
+                        Object.keys(budgetDetailsFileAsJsonObject).forEach((key) => {
                             if (key.substring(0, 1) === 'C') {
                                 if (budgetDetailsFileAsJsonObject[key]['v'] === sheetName) {
                                     const rowNr = key.substring(1, key.length);
@@ -259,7 +543,7 @@ let XlsxParserService = class XlsxParserService {
                         plan3: 0,
                         plan4: 0,
                     };
-                    Object.keys(kpiFileAsJsonObject).map((key) => {
+                    Object.keys(kpiFileAsJsonObject).forEach((key) => {
                         if (key.includes('D')) {
                             const row = parseInt(key.substring(1));
                             if (row > 4) {
@@ -334,56 +618,29 @@ let XlsxParserService = class XlsxParserService {
                             target = statusReportAsJsonObject[i]['__EMPTY_24'] ? statusReportAsJsonObject[i]['__EMPTY_24'] : 0;
                         }
                     }
+                    const help = xlsxFileAsJsonObject[1]["__EMPTY_28"];
                     const risks = [];
                     for (let x = 0; x < xlsxFileAsJsonObject.length; x++) {
                         if (xlsxFileAsJsonObject[x]['__EMPTY_2'] ===
                             'KPI Description (Actuals/Target)') {
-                            let risk1 = {
-                                risk: '',
-                                description: '',
-                                criticality: '',
-                                migration: '',
-                                resolutionDate: '',
-                            };
-                            risk1.risk = (_a = xlsxFileAsJsonObject[x]['__EMPTY_8']) !== null && _a !== void 0 ? _a : '';
-                            risk1.description = (_b = xlsxFileAsJsonObject[x]['__EMPTY_10']) !== null && _b !== void 0 ? _b : '';
-                            risk1.criticality = (_c = xlsxFileAsJsonObject[x]['__EMPTY_17']) !== null && _c !== void 0 ? _c : '';
-                            risk1.migration = (_d = xlsxFileAsJsonObject[x]['__EMPTY_19']) !== null && _d !== void 0 ? _d : '';
-                            risk1.resolutionDate =
-                                (_e = xlsxFileAsJsonObject[x]['__EMPTY_25']) !== null && _e !== void 0 ? _e : '';
+                            const risk1 = this.getRisk(x, xlsxFileAsJsonObject);
                             risks.push(risk1);
-                            if (xlsxFileAsJsonObject[x + 3]['__EMPTY_8']) {
-                                let risk2 = {
-                                    risk: '',
-                                    description: '',
-                                    criticality: '',
-                                    migration: '',
-                                    resolutionDate: '',
-                                };
-                                risk2.risk = (_f = xlsxFileAsJsonObject[x + 3]['__EMPTY_8']) !== null && _f !== void 0 ? _f : '';
-                                risk2.description =
-                                    (_g = xlsxFileAsJsonObject[x + 3]['__EMPTY_10']) !== null && _g !== void 0 ? _g : '';
-                                risk2.criticality =
-                                    (_h = xlsxFileAsJsonObject[x + 3]['__EMPTY_17']) !== null && _h !== void 0 ? _h : '';
-                                risk2.migration =
-                                    (_j = xlsxFileAsJsonObject[x + 3]['__EMPTY_19']) !== null && _j !== void 0 ? _j : '';
-                                risk2.resolutionDate =
-                                    (_k = xlsxFileAsJsonObject[x + 3]['__EMPTY_25']) !== null && _k !== void 0 ? _k : '';
+                            if (typeof (xlsxFileAsJsonObject[x + 3]['__EMPTY_8']) !== 'undefined') {
+                                const risk2 = this.getRisk(x + 3, xlsxFileAsJsonObject);
                                 risks.push(risk2);
-                                if (xlsxFileAsJsonObject[x + 6]['__EMPTY_8']) {
-                                    let risk3 = {
-                                        risk: '',
-                                        description: '',
-                                        criticality: '',
-                                        migration: '',
-                                        resolutionDate: '',
-                                    };
-                                    risk3.risk = (_l = xlsxFileAsJsonObject[x + 6]['__EMPTY_8']) !== null && _l !== void 0 ? _l : '';
-                                    risk3.risk = (_m = xlsxFileAsJsonObject[x + 6]['__EMPTY_10']) !== null && _m !== void 0 ? _m : '';
-                                    risk3.risk = (_o = xlsxFileAsJsonObject[x + 6]['__EMPTY_17']) !== null && _o !== void 0 ? _o : '';
-                                    risk3.risk = (_p = xlsxFileAsJsonObject[x + 6]['__EMPTY_19']) !== null && _p !== void 0 ? _p : '';
-                                    risk3.risk = (_q = xlsxFileAsJsonObject[x + 6]['__EMPTY_25']) !== null && _q !== void 0 ? _q : '';
+                                if (typeof (xlsxFileAsJsonObject[x + 6]['__EMPTY_8']) !== 'undefined') {
+                                    const risk3 = this.getRisk(x + 6, xlsxFileAsJsonObject);
                                     risks.push(risk3);
+                                    if (xlsxFileAsJsonObject[x + 7] && typeof (xlsxFileAsJsonObject[x + 7]) !== 'undefined') {
+                                        if (!("" + xlsxFileAsJsonObject[x + 7]['__EMPTY_8']).includes("Medium")) {
+                                            const risk4 = this.getRisk(x + 7, xlsxFileAsJsonObject);
+                                            risks.push(risk4);
+                                            if (xlsxFileAsJsonObject[x + 8] && typeof (xlsxFileAsJsonObject[x + 8]) !== 'undefined') {
+                                                const risk5 = this.getRisk(x + 8, xlsxFileAsJsonObject);
+                                                risks.push(risk5);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -410,41 +667,49 @@ let XlsxParserService = class XlsxParserService {
                         risks,
                         budgetDetail,
                         monthlySpendings,
+                        help
                     };
-                    const measure = new this.measureModel(newMeasure);
-                    measure
-                        .save()
-                        .then(async (savedMeasure) => {
-                        await this.sheetModel.updateOne({ _id: newlySavedExcelSheet._id }, { $push: { measures: savedMeasure } });
-                        return savedMeasure;
-                    })
-                        .then(async (savedMeasure) => {
-                        const artefacts = this.getArtefactsFromLinesArray(xlsxFileAsJsonObject);
-                        const savedArtefact_IDs = [];
-                        artefacts.map((art) => {
-                            const toSave = {
-                                id: art['__EMPTY_1'],
-                                description: art['__EMPTY_2'],
-                                progress: art['__EMPTY_9'],
-                                budget: art['__EMPTY_11'] ? art['__EMPTY_11'] : '',
-                                achievement: art['__EMPTY_13'],
-                                work: art['__EMPTY_21'],
-                            };
-                            const artefact = new this.artefactModel(toSave);
-                            artefact
-                                .save()
-                                .then(async (savedArtefact) => {
-                                savedArtefact_IDs.push(savedArtefact._id);
-                                await this.measureModel.updateOne({ _id: savedMeasure._id }, { $push: { artefacts: savedArtefact } });
-                            })
-                                .catch((err) => console.log(err));
-                        });
-                    })
-                        .catch((err) => console.log(err));
+                    const measure = temp ? new this.measureTEMPModel(newMeasure) : new this.measureModel(newMeasure);
+                    const savedMeasure = await measure.save();
+                    if (savedMeasure) {
+                        const updatedMeasure = temp ?
+                            await this.sheetTEMPModel.updateOne({ _id: newlySavedExcelSheet._id }, { $push: { measures: savedMeasure } })
+                            :
+                                await this.sheetModel.updateOne({ _id: newlySavedExcelSheet._id }, { $push: { measures: savedMeasure } });
+                        if (updatedMeasure) {
+                            result = "updated measure " + sheetName;
+                            const artefacts = this.getArtefactsFromLinesArray(xlsxFileAsJsonObject);
+                            const savedArtefact_IDs = [];
+                            artefacts.forEach(async (art) => {
+                                const toSave = {
+                                    id: art['__EMPTY_1'],
+                                    description: art['__EMPTY_2'],
+                                    progress: art['__EMPTY_9'],
+                                    budget: art['__EMPTY_11'] ? art['__EMPTY_11'] : '',
+                                    achievement: art['__EMPTY_13'],
+                                    work: art['__EMPTY_21'],
+                                };
+                                const artefact = temp ? new this.artefactTEMPModel(toSave) : new this.artefactModel(toSave);
+                                const savedArtefact = await artefact.save();
+                                if (savedArtefact) {
+                                    savedArtefact_IDs.push(savedArtefact._id);
+                                    temp ?
+                                        await this.measureTEMPModel.updateOne({ _id: savedMeasure._id }, { $push: { artefacts: savedArtefact } })
+                                        :
+                                            await this.measureModel.updateOne({ _id: savedMeasure._id }, { $push: { artefacts: savedArtefact } });
+                                }
+                            });
+                        }
+                    }
                 }
-            });
-        });
-        return 'measures & artefacts parsed and saved to DB';
+                if (i === sheet_name_list.length - 1) {
+                    return "went through all measures";
+                }
+            }
+        }
+        else {
+            return result;
+        }
     }
     getArtefactsFromLinesArray(sheet) {
         return sheet.filter((line) => {
@@ -462,8 +727,9 @@ let XlsxParserService = class XlsxParserService {
             }
         });
     }
-    parse_overview() {
-        const workbook = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.main_file));
+    parse_overview(temp) {
+        const main_file = temp ? globalVars_1.rootPath + "/data/" + "test_data.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.main_file);
+        const workbook = XLSX.readFile(main_file);
         const overview_object = workbook.Sheets['Status Overview'];
         const risks = [];
         Object.keys(overview_object).filter((key) => {
@@ -514,17 +780,26 @@ let XlsxParserService = class XlsxParserService {
                         artefact: artefacts[row - 5]['artefact'],
                     };
                     result.push(addToResult);
-                    await this.measureModel.updateOne({ title: addToResult.name }, {
-                        risk: addToResult.risk,
-                        budget: addToResult.budget,
-                        artefact: addToResult.artefact,
-                    });
+                    temp ?
+                        await this.measureTEMPModel.updateOne({ title: addToResult.name }, {
+                            risk: addToResult.risk,
+                            budget: addToResult.budget,
+                            artefact: addToResult.artefact,
+                        })
+                        :
+                            await this.measureModel.updateOne({ title: addToResult.name }, {
+                                risk: addToResult.risk,
+                                budget: addToResult.budget,
+                                artefact: addToResult.artefact,
+                            });
                 }
             }
         });
+        return result;
     }
-    async parseKPI() {
-        const workbook = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.kpi_file_1));
+    async parseKPI(temp) {
+        const kpi_file_1 = temp ? globalVars_1.rootPath + "/data/" + "KPI-report_1.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.kpi_file_1);
+        const workbook = XLSX.readFile(kpi_file_1);
         const overview_object = workbook.Sheets['Plan view'];
         const rowsOfMeasures = [];
         Object.keys(overview_object).filter((key) => {
@@ -538,7 +813,7 @@ let XlsxParserService = class XlsxParserService {
                 }
             }
         });
-        const measures = await this.measureModel.find();
+        const measures = temp ? await this.measureTEMPModel.find() : await this.measureModel.find();
         measures.map(async (measure) => {
             let rowOfThisMeasure;
             for (let i = 0; i < rowsOfMeasures.length; i++) {
@@ -548,15 +823,14 @@ let XlsxParserService = class XlsxParserService {
             }
             let actuals;
             let target;
-            let lastPlan;
+            let plan1;
+            let plan2;
+            let plan3;
+            let plan4;
             Object.keys(overview_object).filter((key) => {
                 if (key.includes('G')) {
                     const row = parseInt(key.substring(1));
                     if (row == rowOfThisMeasure) {
-                        console.log("----------------");
-                        console.log(overview_object[key]);
-                        console.log();
-                        console.log("----------------");
                         actuals = overview_object[key]['v'];
                     }
                 }
@@ -566,36 +840,70 @@ let XlsxParserService = class XlsxParserService {
                         target = overview_object[key]['v'];
                     }
                 }
+                if (key.includes('J')) {
+                    const row = parseInt(key.substring(1));
+                    if (row == rowOfThisMeasure) {
+                        plan1 = overview_object[key]['v'];
+                    }
+                }
+                if (key.includes('K')) {
+                    const row = parseInt(key.substring(1));
+                    if (row == rowOfThisMeasure) {
+                        plan2 = overview_object[key]['v'];
+                    }
+                }
                 if (key.includes('L')) {
                     const row = parseInt(key.substring(1));
                     if (row == rowOfThisMeasure) {
-                        lastPlan = overview_object[key]['v'];
+                        plan3 = overview_object[key]['v'];
+                    }
+                }
+                if (key.includes('M')) {
+                    const row = parseInt(key.substring(1));
+                    if (row == rowOfThisMeasure) {
+                        plan4 = overview_object[key]['v'];
                     }
                 }
             });
-            console.log(measure.title + '  ' + actuals + '  ' + target + '  ' + lastPlan);
+            const excelSheet = await this.sheetModel.findOne();
+            const actualMonth = excelSheet.kpiDates[1].split(".")[1];
+            const monthsOfPlans = excelSheet.kpiPlans.map(plan => {
+                return plan.split("/")[0];
+            });
             let kpiProgressOfThisMeasure;
-            if (actuals < lastPlan) {
+            let relevantPlan = monthsOfPlans[0];
+            let relevantPlanMonth = 0;
+            for (let i = 0; i < monthsOfPlans.length; i++) {
+                if (monthsOfPlans[i] === actualMonth) {
+                    relevantPlan = monthsOfPlans[i];
+                    relevantPlanMonth = i;
+                }
+            }
+            const plans = [plan1, plan2, plan3, plan4];
+            if (relevantPlanMonth === 0) {
                 kpiProgressOfThisMeasure = 1;
             }
-            else if (lastPlan <= actuals && actuals < target) {
-                kpiProgressOfThisMeasure = 1;
-            }
-            else if (actuals >= target) {
-                kpiProgressOfThisMeasure = 2;
+            else {
+                if (actuals < plans[relevantPlanMonth - 1]) {
+                    kpiProgressOfThisMeasure = 0;
+                }
+                else if (actuals >= target) {
+                    kpiProgressOfThisMeasure = 2;
+                }
             }
             const updatedMeasure = await measure.update({
                 kpiProgress: kpiProgressOfThisMeasure,
             });
-            if (updatedMeasure) {
-                console.log('updated');
-                console.log(updatedMeasure);
-            }
         });
         return 'ok';
     }
-    async parseBudgetMonths() {
-        const workbook = XLSX.readFile(path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.budget_file));
+    async parseBudgetMonths(temp) {
+        let result = "parseBudgetMonths failed";
+        const main_file = temp ? globalVars_1.rootPath + "/data/" + "test_data.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.main_file);
+        const status_report = temp ? globalVars_1.rootPath + "/data/" + "status_report.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.status_report);
+        const budget_file = temp ? globalVars_1.rootPath + "/data/" + "budget_report.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.budget_file);
+        const kpi_file_1 = temp ? globalVars_1.rootPath + "/data/" + "KPI-report_1.xlsx" : path_1.resolve(globalVars_1.fileNames.xlsx_file_dir, globalVars_1.fileNames.kpi_file_1);
+        const workbook = XLSX.readFile(budget_file);
         const overview_object = workbook.Sheets['1. Overview'];
         const detailes_object = workbook.Sheets['2. Detailed view'];
         const totalApprovedBudget = overview_object['M36']['v'];
@@ -617,26 +925,31 @@ let XlsxParserService = class XlsxParserService {
         });
         const approvedBudgetPerMonth = Math.round((totalApprovedBudget / month_columns.length) * 100) / 100;
         const year = new Date().getFullYear();
-        const newBudget = new this.budgetModel({
-            monthlySpendings,
-            approvedBudgetPerMonth,
-            year,
-        });
+        const newBudget = temp
+            ?
+                new this.budgetTEMPModel({
+                    monthlySpendings,
+                    approvedBudgetPerMonth,
+                    year,
+                })
+            :
+                new this.budgetModel({
+                    monthlySpendings,
+                    approvedBudgetPerMonth,
+                    year,
+                });
         newBudget.save().then((result) => {
             console.log('budget saved');
         });
-        const excelSheet = await this.sheetModel.findOne({
-            name: globalVars_1.fileNames.main_file,
-        });
-        excelSheet
-            .update({ totalBudget: totalApprovedBudget })
-            .then((result) => {
-            console.log(result);
-        })
-            .catch((e) => {
-            console.log(e);
-        });
-        return 'budget parsed';
+        const excelSheet = temp ? await this.sheetTEMPModel.findOne() : await this.sheetModel.findOne();
+        if (excelSheet) {
+            const updatedExclSheet = excelSheet.update({ totalBudget: totalApprovedBudget });
+            if (updatedExclSheet) {
+                console.log(updatedExclSheet);
+                result = 'budget parsed';
+            }
+        }
+        return result;
     }
     budgetStringToNumber(input) {
         let result = '';
@@ -680,15 +993,67 @@ let XlsxParserService = class XlsxParserService {
         }
         return result;
     }
+    formatRiskDate(input) {
+        if (input) {
+            if (input.substring(0, 4) === "asap") {
+                return input.replace(/(\r\n|\n|\r)/gm, "");
+            }
+            else {
+                const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                const splitInput = input.split(" ");
+                const day = splitInput[2];
+                const monthRaw = splitInput[1];
+                let month = months.includes(monthRaw) ? months.indexOf(monthRaw) + "" : "";
+                month = month.length < 2 ? "0" + month : month;
+                const year = splitInput[3];
+                return day + "." + month + "." + year;
+            }
+        }
+        else {
+            return "";
+        }
+    }
+    getRisk(line, xlsxFileAsJsonObject) {
+        var _a, _b, _c, _d;
+        let risk = {
+            risk: '',
+            description: '',
+            criticality: '',
+            migration: '',
+            resolutionDate: '',
+        };
+        risk.risk = (_a = xlsxFileAsJsonObject[line]['__EMPTY_8']) !== null && _a !== void 0 ? _a : '';
+        risk.description = (_b = xlsxFileAsJsonObject[line]['__EMPTY_10']) !== null && _b !== void 0 ? _b : '';
+        risk.criticality = (_c = xlsxFileAsJsonObject[line]['__EMPTY_17']) !== null && _c !== void 0 ? _c : '';
+        risk.migration = (_d = xlsxFileAsJsonObject[line]['__EMPTY_19']) !== null && _d !== void 0 ? _d : '';
+        risk.resolutionDate = xlsxFileAsJsonObject[line]['__EMPTY_25']
+            ? this.formatRiskDate(xlsxFileAsJsonObject[line]['__EMPTY_25'].toString())
+            : "";
+        return risk;
+    }
 };
 XlsxParserService = __decorate([
     common_1.Injectable(),
     __param(0, mongoose_1.InjectModel('Artefact')),
-    __param(1, mongoose_1.InjectModel('Measure')),
-    __param(2, mongoose_1.InjectModel('Sheet')),
-    __param(3, mongoose_1.InjectModel('Budget')),
-    __param(4, mongoose_1.InjectModel('PastBudget')),
+    __param(1, mongoose_1.InjectModel('ArtefactTEMP')),
+    __param(2, mongoose_1.InjectModel('Measure')),
+    __param(3, mongoose_1.InjectModel('MeasureTEMP')),
+    __param(4, mongoose_1.InjectModel('Sheet')),
+    __param(5, mongoose_1.InjectModel('SheetTEMP')),
+    __param(6, mongoose_1.InjectModel('Budget')),
+    __param(7, mongoose_1.InjectModel('BudgetTEMP')),
+    __param(8, mongoose_1.InjectModel('PastBudget')),
+    __param(9, mongoose_1.InjectModel('Notification')),
+    __param(10, mongoose_1.InjectModel('NotificationStatus')),
+    __param(11, mongoose_1.InjectModel('Upload')),
     __metadata("design:paramtypes", [mongoose_2.Model,
+        mongoose_2.Model,
+        mongoose_2.Model,
+        mongoose_2.Model,
+        mongoose_2.Model,
+        mongoose_2.Model,
+        mongoose_2.Model,
+        mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model,
         mongoose_2.Model,

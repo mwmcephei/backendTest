@@ -9,41 +9,25 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.NotificationSchema = exports.Notification = void 0;
+exports.UploadSchema = exports.Upload = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
-let Notification = class Notification {
+let Upload = class Upload {
 };
 __decorate([
     mongoose_1.Prop(),
     __metadata("design:type", String)
-], Notification.prototype, "title", void 0);
+], Upload.prototype, "name", void 0);
 __decorate([
     mongoose_1.Prop(),
     __metadata("design:type", String)
-], Notification.prototype, "body", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", String)
-], Notification.prototype, "time", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", String)
-], Notification.prototype, "type", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", String)
-], Notification.prototype, "measure", void 0);
+], Upload.prototype, "date", void 0);
 __decorate([
     mongoose_1.Prop(),
     __metadata("design:type", Boolean)
-], Notification.prototype, "seen", void 0);
-__decorate([
-    mongoose_1.Prop(),
-    __metadata("design:type", Boolean)
-], Notification.prototype, "notified", void 0);
-Notification = __decorate([
+], Upload.prototype, "ok", void 0);
+Upload = __decorate([
     mongoose_1.Schema()
-], Notification);
-exports.Notification = Notification;
-exports.NotificationSchema = mongoose_1.SchemaFactory.createForClass(Notification);
-//# sourceMappingURL=notification.schema.js.map
+], Upload);
+exports.Upload = Upload;
+exports.UploadSchema = mongoose_1.SchemaFactory.createForClass(Upload);
+//# sourceMappingURL=upload.schema.js.map

@@ -11,7 +11,15 @@ export class Notification {
   @Prop()
   body: string;
   @Prop()
+  time: string;
+  @Prop()
+  type: string;
+  @Prop()
+  measure: string;
+  @Prop()
   seen: boolean;
+  @Prop()
+  notified: boolean;
 
 
 

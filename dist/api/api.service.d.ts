@@ -7,6 +7,7 @@ import { NotificationStatus } from '../schemas/notificationStatus.schema';
 import { Model } from 'mongoose';
 import '../types';
 import { PastBudget } from '../types';
+import { Upload } from 'src/schemas/upload.schema';
 export declare class ApiService {
     private artefactModel;
     private measureModel;
@@ -15,16 +16,23 @@ export declare class ApiService {
     private pastBudgetModel;
     private notificationModel;
     private notificationStatusModel;
-    constructor(artefactModel: Model<Artefact>, measureModel: Model<Measure>, sheetModel: Model<Sheet>, budgetModel: Model<Budget>, pastBudgetModel: Model<PastBudget>, notificationModel: Model<Notification>, notificationStatusModel: Model<NotificationStatus>);
+    private uploadModel;
+    constructor(artefactModel: Model<Artefact>, measureModel: Model<Measure>, sheetModel: Model<Sheet>, budgetModel: Model<Budget>, pastBudgetModel: Model<PastBudget>, notificationModel: Model<Notification>, notificationStatusModel: Model<NotificationStatus>, uploadModel: Model<Upload>);
     getMeasure(measureID: string): Promise<Measure>;
     getArtefactsOfMeasure(measureID: string): Promise<Artefact[]>;
+    getMeasureID(measureTitle: string): Promise<string>;
     getAllMeasures(): Promise<Measure[]>;
     getOverview(): Promise<Sheet>;
     getBudget(): Promise<Budget>;
     getPastBudgets(): Promise<PastBudget[]>;
     lookAtNotifications(): Promise<Notification[]>;
-    getNotifications(): Promise<Notification[]>;
+    getNotifications(all: any): Promise<Notification[]>;
+    setToNotified(result: any): Promise<void>;
     setNotification(notification: any): Promise<Notification>;
     checkNotifications(): Promise<NotificationStatus>;
     filesChanged(): Promise<NotificationStatus[]>;
+    HandleFileUpload(originalname: any, targetFileName: any): Promise<boolean>;
+    createNotificationForFileChange(fileCategory: any): Promise<boolean>;
+    getUploadInfo(): Promise<Upload[]>;
+    datetimNow(): string;
 }

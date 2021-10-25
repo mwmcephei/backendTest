@@ -10,6 +10,7 @@ import { Budget, BudgetSchema } from '../schemas/budget.schema';
 import { PastBudget, PastBudgetSchema } from '../schemas/pastBudget.schema';
 import { Notification, NotificationSchema } from '../schemas/notification.schema';
 import { NotificationStatus, NotificationStatusSchema } from '../schemas/notificationStatus.schema';
+import { UploadSchema } from 'src/schemas/upload.schema';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { NotificationStatus, NotificationStatusSchema } from '../schemas/notific
       { name: 'PastBudget', schema: PastBudgetSchema },
       { name: 'Notification', schema: NotificationSchema },
       { name: 'NotificationStatus', schema: NotificationStatusSchema },
+      { name: 'Upload', schema: UploadSchema },
     ]),
   ],
   controllers: [ApiController],

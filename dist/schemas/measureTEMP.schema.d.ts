@@ -1,9 +1,9 @@
 import * as mongoose from 'mongoose';
-import { Artefact } from './artefact.schema';
+import { ArtefactTEMP } from './artefactTEMP.schema';
 import { KPI } from './kpi.schema';
 import { BudgetDetail } from './budgetDetail.schema';
-export declare type MeasureDocument = Measure & mongoose.Document;
-export declare class Measure {
+export declare type MeasureTEMPDocument = MeasureTEMP & mongoose.Document;
+export declare class MeasureTEMP {
     title: string;
     id: number;
     name: string;
@@ -12,7 +12,6 @@ export declare class Measure {
     focusAreaFull: string;
     time: string;
     lastUpdate: string;
-    help: string;
     measureLead: string;
     measureSponsor: string;
     lineOrgSponsor: string;
@@ -20,6 +19,7 @@ export declare class Measure {
     approved: number;
     spent: number;
     kpiName: string;
+    help: string;
     actuals: number;
     target: number;
     risk: number;
@@ -38,6 +38,6 @@ export declare class Measure {
     ];
     budgetDetail: BudgetDetail;
     kpiData: KPI;
-    artefacts: [Artefact];
+    artefacts: [ArtefactTEMP];
 }
-export declare const MeasureSchema: mongoose.Schema<mongoose.Document<Measure, any, any>, mongoose.Model<any, any, any>, undefined, any>;
+export declare const MeasureTEMPSchema: mongoose.Schema<mongoose.Document<MeasureTEMP, any, any>, mongoose.Model<any, any, any>, undefined, any>;

@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FOCUS_AREA_NAMES = exports.fileNames = void 0;
+exports.FOCUS_AREA_NAMES = exports.fileNames = exports.rootPath = void 0;
 const distPath = __dirname;
 const rootPath_array = distPath.split('/');
 rootPath_array.pop();
-const rootPath = rootPath_array.join('/') + '/src/';
-const xlsx_file_dir = rootPath + 'xlsx_files/';
+exports.rootPath = rootPath_array.join('/');
+const rootPathSrc = rootPath_array.join('/') + '/src/';
+const xlsx_file_dir = exports.rootPath + '/src/';
 exports.fileNames = {
     xlsx_file_dir,
     main_file: 'realData/test_data.xlsx',

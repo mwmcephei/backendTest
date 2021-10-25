@@ -50,8 +50,8 @@ export class XlsxParserController {
 
 
   @Get('triggerParsing')
-  async triggerParsing() {
-    return await this.xlsxParseService.triggerParsing();
+  triggerParsing() {
+    return this.xlsxParseService.triggerParsing();
   }
 
   @Get('parseManually/:temp')
